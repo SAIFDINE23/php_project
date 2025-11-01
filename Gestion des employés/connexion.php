@@ -1,12 +1,13 @@
 <?php
-  //connexion à la base de données
-  $host = getenv('MYSQL_HOST') ?: 'localhost';
-  $user = getenv('MYSQL_USER') ?: 'root';
-  $pass = getenv('MYSQL_PASSWORD') ?: '';
-  $db = getenv('MYSQL_DB') ?: 'laravel';
-  
-  $con = mysqli_connect($host, $user, $pass, $db);
-  if(!$con){
-     echo "Vous n'êtes pas connecté à la base de donnée";
-  }
+$servername = "db"; // nom du service MySQL dans docker-compose
+$username = "root";
+$password = "root";
+$dbname = "laravel";
+
+$con = mysqli_connect($servername, $username, $password, $dbname);
+
+if (!$con) {
+    die("Erreur de connexion : " . mysqli_connect_error());
+}
+echo "Connexion réussie à la base de données !";
 ?>
