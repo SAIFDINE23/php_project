@@ -21,6 +21,7 @@ pipeline {
                     docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "Gestion des employés")
             }
         }
+        }
 
         stage('Push to DockerHub') {
             steps {
