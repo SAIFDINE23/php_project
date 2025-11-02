@@ -18,7 +18,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "gestion_des_employes")
+                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}", ".")
             }
         }
         }
