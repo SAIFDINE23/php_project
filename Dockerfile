@@ -15,7 +15,8 @@ RUN a2enmod rewrite
 COPY . /var/www/html/
 
 # Permissions correctes
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
 
 # Exposer le port Apache
 EXPOSE 80

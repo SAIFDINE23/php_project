@@ -1,11 +1,11 @@
-version: '3.8'
+version: '3.9'
 
 services:
   web:
-    image: saifdine23/gestiondesemploys-web:latest  # <- utiliser l'image Docker Hub
+    image: saifdine23/gestiondesemploys-web:latest
     container_name: php_app
     ports:
-      - "8080:80"
+      - "8081:80"
     depends_on:
       - db
     environment:
@@ -13,6 +13,7 @@ services:
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_DB: laravel
+    restart: always
 
   db:
     image: mysql:8.0
