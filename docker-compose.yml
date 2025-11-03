@@ -2,12 +2,10 @@ version: '3.8'
 
 services:
   web:
-    build: .
+    image: saifdine23/gestiondesemploys-web:latest  # <- utiliser l'image Docker Hub
     container_name: php_app
     ports:
       - "8080:80"
-    volumes:
-      - .:/var/www/html
     depends_on:
       - db
     environment:
