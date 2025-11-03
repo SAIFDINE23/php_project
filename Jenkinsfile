@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-        IMAGE_NAME = "saifdine23/gestiondesemploys-web"
+        IMAGE_NAME = "saifdine23/gestiondesemployes-web"
         IMAGE_TAG = "latest"
         GIT_REPO = "https://github.com/SAIFDINE23/php_project.git"
     }
