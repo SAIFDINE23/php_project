@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   web:
-    image: saifdine23/gestiondesemploys-web:latest
+    image: saifdine23/gestiondesemployes-web:latest
     container_name: php_app
     ports:
       - "8081:80"

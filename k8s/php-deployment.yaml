@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: php-app
-          image: saifdine23/gestiondesemploys-web:latest
+          image: saifdine23/gestiondesemployes-web:latest
           ports:
             - containerPort: 80
           env:
