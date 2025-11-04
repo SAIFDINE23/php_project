@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'bitnami/kubectl:latest'  // image contenant kubectl
-            args '-u root:root'             // optionnel : exécuter en root pour accès au workspace
-        }
-    }
+    agent any
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
