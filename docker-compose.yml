@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   web:
     image: saifdine23/gestiondesemployes-web:latest
@@ -7,15 +5,15 @@ services:
     ports:
       - "8081:80"
     depends_on:
-      - db
+      - mysql
     environment:
-      MYSQL_HOST: db
+      MYSQL_HOST: mysql
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_DB: laravel
     restart: always
 
-  db:
+  mysql:
     image: mysql:8.0
     container_name: mysql_db
     command: --default-authentication-plugin=mysql_native_password

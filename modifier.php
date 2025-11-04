@@ -26,9 +26,9 @@
            //verifier que tous les champs ont été remplis
            if(isset($nom) && isset($prenom) && $age){
                //requête de modification
-               $req = mysqli_query($con, "UPDATE employe SET nom = '$nom' , prenom = '$prenom' , age = '$age' WHERE id = $id");
+               $req = mysqli_query($con, "UPDATE Employe SET nom = '$nom' , prenom = '$prenom' , age = '$age' WHERE id = $id");
                 if($req){//si la requête a été effectuée avec succès , on fait une redirection
-                    header("location: index.php");
+                    header("Location: index.php");
                 }else {//si non
                     $message = "Employé non modifié";
                 }

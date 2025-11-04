@@ -1,3 +1,28 @@
+<?php
+// Traiter le formulaire AVANT toute sortie HTML
+if(isset($_POST['button'])){
+    // Extraction des informations
+    $nom = $_POST['nom'] ?? '';
+    $prenom = $_POST['prenom'] ?? '';
+    $age = $_POST['age'] ?? '';
+
+    if($nom && $prenom && $age){
+        include_once "connexion.php";
+
+        // Requête d'ajout
+        $req = mysqli_query($con , "INSERT INTO Employe VALUES(NULL, '$nom', '$prenom','$age')");
+        if($req){
+            // Redirection après succès
+            header("Location: index.php");
+            exit(); // Toujours mettre exit() après header
+        } else {
+            $message = "Employé non ajouté";
+        }
+    } else {
+        $message = "Veuillez remplir tous les champs !";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,41 +33,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <?php
-       //vérifier que le bouton ajouter a bien été cliqué
-       if(isset($_POST['button'])){
-           //extraction des informations envoyé dans des variables par la methode POST
-           extract($_POST);
-           //verifier que tous les champs ont été remplis
-           if(isset($nom) && isset($prenom) && $age){
-                //connexion à la base de donnée
-                include_once "connexion.php";
-                //requête d'ajout
-                $req = mysqli_query($con , "INSERT INTO Employe VALUES(NULL, '$nom', '$prenom','$age')");
-                if($req){//si la requête a été effectuée avec succès , on fait une redirection
-                    header("location: index.php");
-                }else {//si non
-                    $message = "Employé non ajouté";
-                }
-
-           }else {
-               //si non
-               $message = "Veuillez remplir tous les champs !";
-           }
-       }
-    
-    ?>
     <div class="form">
         <a href="index.php" class="back_btn"><img src="images/back.png"> Retour</a>
-        <h2>Ajouter un employé</h2>
+        <h2>Ajout un employé</h2>
         <p class="erreur_message">
             <?php 
-            // si la variable message existe , affichons son contenu
             if(isset($message)){
                 echo $message;
             }
             ?>
-
         </p>
         <form action="" method="POST">
             <label>Nom</label>

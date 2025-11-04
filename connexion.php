@@ -9,5 +9,4 @@ $con = mysqli_connect($servername, $username, $password, $dbname);
 if (!$con) {
     die("Erreur de connexion : " . mysqli_connect_error());
 }
-echo "Connexion réussie à la base de données !";
 ?>

@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="ajouter.php" class="Btn_add"> <img src="images/plus.png"> Ajouter</a>
+        <a href="ajouter.php" class="Btn_add"> <img src="images/plus.png"> Ajout</a>
         
         <table>
             <tr id="items">
