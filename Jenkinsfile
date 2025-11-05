@@ -41,19 +41,17 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 echo "⚙️ Déploiement sur Kubernetes..."
-                script {
-                    // Appliquer les fichiers Kubernetes dans l’ordre logique
+                withEnv(["KUBECONFIG=/var/jenkins_home/.kube/config"]) {
                     sh """
                     kubectl apply -f ${DEPLOY_DIR}/mysql-pvc.yaml
                     kubectl apply -f ${DEPLOY_DIR}/mysql-deployment.yaml
                     kubectl apply -f ${DEPLOY_DIR}/php-deployment.yaml
+                    kubectl get pods
                     """
-
-                    // Attendre que les pods soient prêts
-                    sh "kubectl get pods"
                 }
             }
-        }
+}
+
 
         stage('Run Application') {
             steps {
