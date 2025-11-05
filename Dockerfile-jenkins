@@ -1,0 +1,13 @@
+# Base Jenkins LTS officielle
+FROM jenkins/jenkins:lts
+
+# Passer en root pour installer des outils
+USER root
+
+# Installer kubectl
+RUN curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && chmod +x kubectl \
+    && mv kubectl /usr/local/bin/
+
+# Revenir à l'utilisateur Jenkins
+USER jenkins
