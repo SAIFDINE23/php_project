@@ -7,6 +7,7 @@ pipeline {
         IMAGE_TAG = "latest"
         GIT_REPO = "https://github.com/SAIFDINE23/php_project.git"
         DEPLOY_DIR = "k8s"
+        KUBECONFIG = "/var/jenkins_home/.kube/config"
     }
 
     stages {
@@ -22,7 +23,7 @@ pipeline {
             steps {
                 echo "🐳 Construction de l’image Docker..."
                 script {
-                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}", ".")
+                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
                 }
             }
         }
@@ -31,7 +32,7 @@ pipeline {
             steps {
                 echo "🚀 Envoi de l’image sur DockerHub..."
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_CREDENTIALS}") {
                         docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
                     }
                 }
@@ -41,24 +42,23 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 echo "⚙️ Déploiement sur Kubernetes..."
-                withEnv(["KUBECONFIG=/var/jenkins_home/.kube/config"]) {
-                    sh """
-                    kubectl apply -f ${DEPLOY_DIR}/mysql-pvc.yaml
-                    kubectl apply -f ${DEPLOY_DIR}/mysql-deployment.yaml
-                    kubectl apply -f ${DEPLOY_DIR}/php-deployment.yaml
-                    kubectl get pods
-                    """
-                }
+                sh """
+                kubectl config use-context minikube
+                kubectl apply -f ${DEPLOY_DIR}/mysql-pvc.yaml
+                kubectl apply -f ${DEPLOY_DIR}/mysql-deployment.yaml
+                kubectl apply -f ${DEPLOY_DIR}/php-deployment.yaml
+                kubectl rollout status deployment/php-app
+                kubectl get pods -o wide
+                """
             }
-}
-
+        }
 
         stage('Run Application') {
             steps {
-                echo "🌐 Lancement du service Minikube..."
+                echo "🌐 Récupération de l’URL Minikube..."
                 script {
-                    // Récupère et affiche l’URL du service exposé
-                    sh 'minikube service php-app --url'
+                    def appUrl = sh(script: 'minikube service php-app --url', returnStdout: true).trim()
+                    echo "Application accessible sur : ${appUrl}"
                 }
             }
         }
