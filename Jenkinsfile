@@ -7,16 +7,16 @@ pipeline {
         IMAGE_TAG = "latest"
         GIT_REPO = "https://github.com/SAIFDINE23/php_project.git"
         DEPLOY_DIR = "k8s"
-        KUBECONFIG = "/var/jenkins_home/.kube/config"
     }
 
     stages {
+
         stage('Pull GitHub') {
             steps {
+                echo "📦 Clonage du dépôt GitHub..."
                 git branch: 'main', url: "${GIT_REPO}"
             }
         }
-
         stage('Install Node.js dependencies') {
             steps {
                 sh 'npm install'
@@ -35,37 +35,54 @@ pipeline {
             steps {
                 echo "🐳 Construction de l’image Docker..."
                 script {
-                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
                 }
             }
         }
 
         stage('Push to DockerHub') {
             steps {
-                docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_CREDENTIALS}") {
-                    docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
+                echo "🚀 Envoi de l’image sur DockerHub..."
+                script {
+                    sh """
+                    echo "$DOCKERHUB_CREDENTIALS_PSW" | docker login -u "$DOCKERHUB_CREDENTIALS_USR" --password-stdin
+                    docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                    """
                 }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                withKubeConfig(caCertificate: '', clusterName: 'minikube', contextName: 'minikube', credentialsId: 'kubernetes-jenkins-secret', serverUrl: 'https://192.168.49.2:8443') {
+                echo "⚙️ Déploiement sur Kubernetes..."
+                withKubeConfig(
+                    caCertificate: '',
+                    clusterName: 'minikube',
+                    contextName: 'minikube',
+                    credentialsId: 'kubernetes-jenkins-secret',
+                    namespace: '',
+                    restrictKubeConfigAccess: false,
+                    serverUrl: 'https://192.168.49.2:8443'
+                ) {
+                    sh "kubectl get nodes"
                     sh "kubectl apply -f ${DEPLOY_DIR}/mysql-pvc.yaml"
                     sh "kubectl apply -f ${DEPLOY_DIR}/mysql-deployment.yaml"
                     sh "kubectl apply -f ${DEPLOY_DIR}/php-deployment.yaml"
                     sh "kubectl rollout status deployment/php-app"
+                    sh "kubectl get pods -o wide"
                 }
             }
         }
+
+        
     }
 
     post {
         success {
-            echo "✅ Pipeline terminé avec succès !"
+            echo "✅ Déploiement réussi sur Kubernetes !"
         }
         failure {
-            echo "❌ Échec du pipeline. Vérifie les logs."
+            echo "❌ Le pipeline a échoué. Vérifie les logs Jenkins."
         }
     }
 }
