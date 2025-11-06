@@ -61,15 +61,7 @@ pipeline {
             }
         }
 
-        stage('Run Application') {
-            steps {
-                echo "🌐 Récupération de l’URL Minikube..."
-                script {
-                    def appUrl = sh(script: 'minikube service php-app --url', returnStdout: true).trim()
-                    echo "Application accessible sur : ${appUrl}"
-                }
-            }
-        }
+        
     }
 
     post {
