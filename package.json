@@ -1,0 +1,11 @@
+{
+  "name": "php-project",
+  "version": "1.0.0",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "echo 'No JS tests, add your own scripts'"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0"
+  }
+}
