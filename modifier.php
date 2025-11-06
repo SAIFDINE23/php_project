@@ -4,62 +4,65 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajouter</title>
+    <title>Modifier</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <?php
+include_once "connexion.php";
 
-         //connexion à la base de donnée
-          include_once "connexion.php";
-         //on récupère le id dans le lien
-          $id = $_GET['id'];
-          //requête pour afficher les infos d'un employé
-          $req = mysqli_query($con , "SELECT * FROM Employe WHERE id = $id");
-          $row = mysqli_fetch_assoc($req);
+// Récupération de l'id
+$id = $_GET['id'] ?? 0;
+if(!$id){
+    die("ID invalide !");
+}
 
+// Récupération des données de l'employé
+$req = mysqli_query($con, "SELECT * FROM Employe WHERE id = $id");
+$row = mysqli_fetch_assoc($req);
 
-       //vérifier que le bouton ajouter a bien été cliqué
-       if(isset($_POST['button'])){
-           //extraction des informations envoyé dans des variables par la methode POST
-           extract($_POST);
-           //verifier que tous les champs ont été remplis
-           if(isset($nom) && isset($prenom) && $age){
-               //requête de modification
-               $req = mysqli_query($con, "UPDATE Employe SET nom = '$nom' , prenom = '$prenom' , age = '$age' WHERE id = $id");
-                if($req){//si la requête a été effectuée avec succès , on fait une redirection
-                    header("Location: index.php");
-                }else {//si non
-                    $message = "Employé non modifié";
-                }
+// Vérification de la soumission du formulaire
+if(isset($_POST['button'])){
+    $nom = $_POST['nom'] ?? '';
+    $prenom = $_POST['prenom'] ?? '';
+    $age = $_POST['age'] ?? '';
 
-           }else {
-               //si non
-               $message = "Veuillez remplir tous les champs !";
-           }
-       }
-    
-    ?>
+    if(!empty($nom) && !empty($prenom) && !empty($age)){
+        // Protection contre les injections SQL
+        $nom = mysqli_real_escape_string($con, $nom);
+        $prenom = mysqli_real_escape_string($con, $prenom);
+        $age = (int)$age;
 
-    <div class="form">
-        <a href="index.php" class="back_btn"><img src="images/back.png"> Retour</a>
-        <h2>Modifier l'employé : <?=$row['nom']?> </h2>
-        <p class="erreur_message">
-           <?php 
-              if(isset($message)){
-                  echo $message ;
-              }
-           ?>
-        </p>
-        <form action="" method="POST">
-            <label>Nom</label>
-            <input type="text" name="nom" value="<?=$row['nom']?>">
-            <label>Prénom</label>
-            <input type="text" name="prenom" value="<?=$row['prenom']?>">
-            <label>âge</label>
-            <input type="number" name="age" value="<?=$row['age']?>">
-            <input type="submit" value="Modifier" name="button">
-        </form>
-    </div>
+        // Requête de modification
+        $req = mysqli_query($con, "UPDATE Employe SET nom = '$nom', prenom = '$prenom', age = $age WHERE id = $id");
+
+        if($req){
+            header("Location: index.php");
+            exit();
+        } else {
+            $message = "Erreur : Employé non modifié.";
+        }
+    } else {
+        $message = "Veuillez remplir tous les champs !";
+    }
+}
+?>
+
+<div class="form">
+    <a href="index.php" class="back_btn"><img src="images/back.png"> Retour</a>
+    <h2>Modifier l'employé : <?= htmlspecialchars($row['nom']) ?></h2>
+    <p class="erreur_message">
+        <?php if(isset($message)) echo $message; ?>
+    </p>
+    <form action="" method="POST">
+        <label>Nom</label>
+        <input type="text" name="nom" value="<?= htmlspecialchars($row['nom']) ?>">
+        <label>Prénom</label>
+        <input type="text" name="prenom" value="<?= htmlspecialchars($row['prenom']) ?>">
+        <label>Âge</label>
+        <input type="number" name="age" value="<?= htmlspecialchars($row['age']) ?>">
+        <input type="submit" value="Modifier" name="button">
+    </form>
+</div>
 </body>
 </html>

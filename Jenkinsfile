@@ -7,7 +7,6 @@ pipeline {
         IMAGE_TAG = "latest"
         GIT_REPO = "https://github.com/SAIFDINE23/php_project.git"
         DEPLOY_DIR = "k8s"
-        KUBECONFIG = "/var/jenkins_home/.kube/config"
     }
 
     stages {
@@ -23,7 +22,7 @@ pipeline {
             steps {
                 echo "🐳 Construction de l’image Docker..."
                 script {
-                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
                 }
             }
         }
@@ -32,9 +31,10 @@ pipeline {
             steps {
                 echo "🚀 Envoi de l’image sur DockerHub..."
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_CREDENTIALS}") {
-                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
-                    }
+                    sh """
+                    echo "$DOCKERHUB_CREDENTIALS_PSW" | docker login -u "$DOCKERHUB_CREDENTIALS_USR" --password-stdin
+                    docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                    """
                 }
             }
         }
@@ -42,14 +42,22 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 echo "⚙️ Déploiement sur Kubernetes..."
-                sh """
-                kubectl config use-context minikube
-                kubectl apply -f ${DEPLOY_DIR}/mysql-pvc.yaml
-                kubectl apply -f ${DEPLOY_DIR}/mysql-deployment.yaml
-                kubectl apply -f ${DEPLOY_DIR}/php-deployment.yaml
-                kubectl rollout status deployment/php-app
-                kubectl get pods -o wide
-                """
+                withKubeConfig(
+                    caCertificate: '',
+                    clusterName: 'minikube',
+                    contextName: 'minikube',
+                    credentialsId: 'kubernetes-jenkins-secret',
+                    namespace: '',
+                    restrictKubeConfigAccess: false,
+                    serverUrl: 'https://192.168.49.2:8443'
+                ) {
+                    sh "kubectl get nodes"
+                    sh "kubectl apply -f ${DEPLOY_DIR}/mysql-pvc.yaml"
+                    sh "kubectl apply -f ${DEPLOY_DIR}/mysql-deployment.yaml"
+                    sh "kubectl apply -f ${DEPLOY_DIR}/php-deployment.yaml"
+                    sh "kubectl rollout status deployment/php-app"
+                    sh "kubectl get pods -o wide"
+                }
             }
         }
 
